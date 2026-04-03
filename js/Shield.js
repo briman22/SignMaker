@@ -7,7 +7,7 @@ class Shield {
 	 * @param {string} [bannerType] - Directional banner to display.
 	 * @param {string} [bannerPosition] - Where to place the directional banner relative to the shield.
 	 */
-	constructor({type = "I", routeNumber = "1", to = false, bannerType, bannerPosition} = {}) {
+	constructor({type = "I", routeNumber = "1", to = false, toll = false, bannerType, bannerPosition} = {}) {
 		if (Object.keys(this.types).includes(type)) {
 			this.type = type;
 		} else {
@@ -16,6 +16,7 @@ class Shield {
 		this.type = type;
 		this.routeNumber = routeNumber;
 		this.to = to;
+		this.toll = toll;
 		if (this.bannerTypes.includes(bannerType)) {
 			this.bannerType = bannerType;
 		} else {
@@ -28,7 +29,7 @@ class Shield {
 		}
 	}
 }
-
+ 
 Shield.prototype.bannerTypes = [
 	"None",
 	"Arterial",
@@ -51,7 +52,6 @@ Shield.prototype.bannerTypes = [
 	"Inner",
 	"Outer",
 	"Future",
-	"Toll",
 	"City",
 	"Conn",
 	"To"
