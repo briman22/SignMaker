@@ -191,6 +191,7 @@ const app = (function() {
 			panel.sign.shields[shieldIndex].type = document.getElementById(`shield${shieldIndex}_type`).value;
 			panel.sign.shields[shieldIndex].routeNumber = document.getElementById(`shield${shieldIndex}_routeNumber`).value;
 			panel.sign.shields[shieldIndex].to = document.getElementById(`shield${shieldIndex}_to`).checked;
+			panel.sign.shields[shieldIndex].toll = document.getElementById(`shield${shieldIndex}_toll`).checked;
 			panel.sign.shields[shieldIndex].bannerType = document.getElementById(`shield${shieldIndex}_bannerType`).value;
 			panel.sign.shields[shieldIndex].bannerPosition = document.getElementById(`shield${shieldIndex}_bannerPosition`).value;
 		}
@@ -319,6 +320,19 @@ const app = (function() {
 			toCheckLabelElmt.setAttribute("for", `shield${shieldIndex}_to`);
 			toCheckLabelElmt.appendChild(document.createTextNode(" TO "));
 			rowContainerElmt.appendChild(toCheckLabelElmt);
+
+			const tollCheckElmt = document.createElement("input");
+			tollCheckElmt.type = "checkbox";
+			tollCheckElmt.id = `shield${shieldIndex}_toll`;
+			tollCheckElmt.name = `shield${shieldIndex}_toll`;
+			tollCheckElmt.checked = shields[shieldIndex].toll;
+			tollCheckElmt.addEventListener("change", readForm);
+			rowContainerElmt.appendChild(tollCheckElmt);
+
+			const tollCheckLabelElmt = document.createElement("label");
+			tollCheckLabelElmt.setAttribute("for", `shield${shieldIndex}_toll`);
+			tollCheckLabelElmt.appendChild(document.createTextNode(" TOLL "));
+			rowContainerElmt.appendChild(tollCheckLabelElmt);
 
 			// Populate shield options
 			const typeSelectElmt = document.createElement("select");
@@ -541,25 +555,31 @@ const app = (function() {
 				}
 				var fileExists = 404;
 				var ignoreBanner = false;
+				var ignoreToll = false;
 				while(fileExists != 200) {
 					imgFileConstr = shield.type + "-" + lengthValue;
-					if (shield.bannerType != "None" && !ignoreBanner) {
+					if (shield.toll && !ignoreToll) {
+						imgFileConstr += "-TOLL";
+					} else if (shield.bannerType != "None" && !ignoreBanner) {
 						imgFileConstr += "-" + shield.bannerType.toUpperCase();
 					}
 					fileExists = executeIfFileExist(imgDir + imgFileConstr + ".svg");
 					lengthValue -= 1;
 					if (lengthValue == 0) {
-						if (shield.bannerType != "None" && !ignoreBanner) {		
-							ignoreBanner = true;
-							lengthValue = shield.routeNumber.length;
-							if (shield.routeNumber.length > 3) {
-								lengthValue = 3;
-							}
-							else if (shield.routeNumber.length == 1) {
-								lengthValue = 2;
-							}
+						let resetLength = shield.routeNumber.length;
+						if (shield.routeNumber.length > 3) {
+							resetLength = 3;
+						} else if (shield.routeNumber.length == 1) {
+							resetLength = 2;
 						}
-						else {
+						if (shield.toll && !ignoreToll) {
+							// No TOLL-specific image found; fall back to banner or plain
+							ignoreToll = true;
+							lengthValue = resetLength;
+						} else if (shield.bannerType != "None" && !ignoreBanner) {
+							ignoreBanner = true;
+							lengthValue = resetLength;
+						} else {
 							fileExists = 200;
 						}
 					}
